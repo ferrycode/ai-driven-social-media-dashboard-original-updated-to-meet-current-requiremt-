@@ -3,7 +3,11 @@ import json
 import boto3
 import time
 import os
-from botocore.vendored import requests
+#from botocore.vendored import requests #deleted from orginal, aws framework no more supports this lib
+#import requests #not working or required 
+
+import urllib3 #required for new updates, replaces botocore.vendored lib in line 6
+http = urllib3.PoolManager() #make an iunstance 
 
 def sendResponseCfn(event, context, responseStatus):
     response_body = {'Status': responseStatus,
@@ -14,7 +18,9 @@ def sendResponseCfn(event, context, responseStatus):
                      'LogicalResourceId': event['LogicalResourceId'],
                      'Data': json.loads("{}")}
 
-    requests.put(event['ResponseURL'], data=json.dumps(response_body))
+    #requests.put(event['ResponseURL'], data=json.dumps(response_body)) #old lib, not working anymore
+    r = http.request('PUT', event['ResponseURL'],body=json.dumps(response_body))
+
 
 def lambda_handler(event, context):
   print(json.dumps(event))
